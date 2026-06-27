@@ -7,7 +7,7 @@ const fraunces = Fraunces({
   variable: "--font-fraunces",
   display: "swap",
 });
-
+//test
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
