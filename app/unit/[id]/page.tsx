@@ -8,6 +8,9 @@ import { ResourceTabs } from "@/components/ResourceTabs";
 import { statusColors } from "@/lib/theme";
 import { UnitStatus } from "@prisma/client";
 import { setUnitStatus } from "@/app/actions/unit";
+import { BackLink } from "@/components/BackLink";
+import { ExportPdfButton } from "@/components/ExportPdfButton";
+import { PracticeButton } from "@/components/PracticeButton";
 
 export default async function UnitPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -34,6 +37,8 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
       <main className="max-w-3xl mx-auto px-4 py-8">
+        <BackLink href={`/course/${unit.course.id}`} label={unit.course.name} />
+
         {/* Breadcrumb */}
         <nav className="text-sm text-ink-muted mb-6 flex items-center gap-2 flex-wrap">
           <Link href="/" className="hover:text-ink">Dashboard</Link>
@@ -46,7 +51,7 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
         </nav>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
+        <div className="flex items-start justify-between gap-4 mb-8 flex-wrap" id="unit-header">
           <div>
             <span className="font-mono text-xs text-ink-muted">Unit {unit.number}</span>
             <h1 className="text-2xl font-semibold text-ink mt-0.5">{unit.name}</h1>
@@ -54,6 +59,9 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
               <p className="text-sm text-ink-muted mt-1">{donePct}% topics done</p>
             )}
           </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <PracticeButton questions={unit.resources.filter((r) => r.type === "PAST_QUESTIONS").map((r) => ({ id: r.id, title: r.title, body: r.body }))} />
+            <ExportPdfButton href={`/print/unit/${unit.id}`} label="Export PDF" />
           <form
             action={async (fd) => {
               "use server";
@@ -75,6 +83,7 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
               ))}
             </select>
           </form>
+          </div>
         </div>
 
         {/* Topics checklist */}

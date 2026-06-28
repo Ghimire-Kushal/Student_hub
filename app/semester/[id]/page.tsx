@@ -5,6 +5,8 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { CourseCard } from "@/components/CourseCard";
 import { AddCourseButton } from "@/components/AddCourseButton";
+import { ImportSyllabusButton } from "./ImportSyllabusButton";
+import { BackLink } from "@/components/BackLink";
 
 export default async function SemesterPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -31,6 +33,8 @@ export default async function SemesterPage({ params }: { params: Promise<{ id: s
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
       <main className="max-w-5xl mx-auto px-4 py-8">
+        <BackLink href="/" label="Dashboard" />
+
         {/* Breadcrumb */}
         <nav className="text-sm text-ink-muted mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-ink transition-colors">Dashboard</Link>
@@ -47,7 +51,10 @@ export default async function SemesterPage({ params }: { params: Promise<{ id: s
               </p>
             )}
           </div>
-          <AddCourseButton semesterId={semester.id} />
+          <div className="flex gap-2 flex-wrap">
+            <ImportSyllabusButton semesterId={semester.id} />
+            <AddCourseButton semesterId={semester.id} />
+          </div>
         </div>
 
         {semester.courses.length === 0 ? (

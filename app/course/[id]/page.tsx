@@ -4,6 +4,8 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { UnitList } from "@/components/UnitList";
+import { BackLink } from "@/components/BackLink";
+import { ExportPdfButton } from "@/components/ExportPdfButton";
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -28,6 +30,8 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
       <main className="max-w-3xl mx-auto px-4 py-8">
+        <BackLink href={`/semester/${course.semester.id}`} label={course.semester.name} />
+
         {/* Breadcrumb */}
         <nav className="text-sm text-ink-muted mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-ink">Dashboard</Link>
@@ -39,6 +43,10 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
 
         {/* Header */}
         <div className="mb-8">
+          <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
+            <div />
+            <ExportPdfButton href={`/print/course/${course.id}`} label="Export PDF" />
+          </div>
           <div className="flex items-start gap-3">
             <div className="w-1.5 h-10 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: course.color }} />
             <div>

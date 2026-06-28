@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ResourceType } from "@prisma/client";
 import { deleteResource } from "@/app/actions/resource";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { MarkdownMath } from "./MarkdownMath";
 
 interface Resource {
   id: string;
@@ -44,9 +45,7 @@ export function ResourceCard({ resource, unitId }: { resource: Resource; unitId:
 
         {expanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-            {resource.body && (
-              <p className="text-sm text-ink whitespace-pre-wrap">{resource.body}</p>
-            )}
+            {resource.body && <MarkdownMath>{resource.body}</MarkdownMath>}
             {resource.imageUrl && (
               <div className="rounded-lg overflow-hidden border border-border">
                 <Image

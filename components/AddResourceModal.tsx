@@ -72,6 +72,9 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
               className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent resize-none"
               placeholder="Notes, summary, or question text…"
             />
+            <p className="text-xs text-ink-muted mt-1">
+              Markdown + math supported — inline <code className="font-mono">$...$</code> and block <code className="font-mono">$$...$$</code>
+            </p>
           </div>
 
           {/* Image upload */}

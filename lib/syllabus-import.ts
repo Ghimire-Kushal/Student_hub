@@ -73,6 +73,10 @@ export async function importSyllabusIntoSemester(
 ): Promise<void> {
   const { db } = await import("@/lib/db");
 
+  // Verify the semester belongs to this user before writing anything
+  const sem = await db.semester.findFirst({ where: { id: semesterId, userId } });
+  if (!sem) throw new Error("Semester not found");
+
   for (const subject of syllabus.subjects) {
     const course = await db.course.create({
       data: {
@@ -101,8 +105,4 @@ export async function importSyllabusIntoSemester(
       }
     }
   }
-
-  // Verify the semester belongs to this user (security check)
-  const sem = await db.semester.findFirst({ where: { id: semesterId, userId } });
-  if (!sem) throw new Error("Semester not found");
 }
