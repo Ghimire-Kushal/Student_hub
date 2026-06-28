@@ -21,12 +21,23 @@ enum ResourceType {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  password  String
-  name      String?
-  createdAt DateTime   @default(now())
-  semesters Semester[]
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  name          String?
+  createdAt     DateTime       @default(now())
+  semesters     Semester[]
+  studySessions StudySession[]
+}
+
+model StudySession {
+  id        String   @id @default(cuid())
+  userId    String
+  minutes   Int
+  courseId  String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
 }
 
 model Semester {
@@ -41,30 +52,35 @@ model Semester {
 }
 
 model Course {
-  id         String    @id @default(cuid())
-  code       String
-  name       String
-  credits    Int       @default(3)
-  examDate   DateTime?
-  syllabus   String?
-  color      String    @default("#8B5CF6")
-  lockOrder  Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  semesterId String
-  semester   Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
-  units      Unit[]
+  id            String         @id @default(cuid())
+  code          String
+  name          String
+  credits       Int            @default(3)
+  examDate      DateTime?
+  syllabus      String?
+  color         String         @default("#8B5CF6")
+  lockOrder     Boolean        @default(false)
+  shareToken    String?        @unique
+  createdAt     DateTime       @default(now())
+  semesterId    String
+  semester      Semester       @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  units         Unit[]
+  studySessions StudySession[]
 }
 
 model Unit {
-  id        String     @id @default(cuid())
-  number    Int
-  name      String
-  status    UnitStatus @default(NONE)
-  createdAt DateTime   @default(now())
-  courseId  String
-  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  topics    Topic[]
-  resources Resource[]
+  id                String     @id @default(cuid())
+  number            Int
+  name              String
+  status            UnitStatus @default(NONE)
+  completedAt       DateTime?
+  nextReviewAt      DateTime?
+  reviewIntervalDays Int       @default(7)
+  createdAt         DateTime   @default(now())
+  courseId          String
+  course            Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topics            Topic[]
+  resources         Resource[]
 }
 
 model Topic {
@@ -82,8 +98,11 @@ model Resource {
   title     String
   body      String?
   imageUrl  String?
+  imageKey  String?
   fileUrl   String?
+  fileKey   String?
   fileName  String?
+  tags      String[]     @default([])
   createdAt DateTime     @default(now())
   unitId    String
   unit      Unit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
