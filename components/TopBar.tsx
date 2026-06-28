@@ -28,9 +28,9 @@ export function TopBar({ userEmail }: Props) {
   return (
     <header className="sticky top-0 z-40 bg-paper/90 backdrop-blur border-b border-border">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-4">
-        <span className="font-serif font-semibold text-ink text-lg flex-shrink-0">
+        <Link href="/" className="font-serif font-semibold text-ink text-lg flex-shrink-0 hover:opacity-80 transition-opacity">
           Study Tracker
-        </span>
+        </Link>
 
         <form onSubmit={handleSearch} className="flex-1 max-w-md">
           <input
