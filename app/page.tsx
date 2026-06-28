@@ -6,6 +6,9 @@ import { TopBar } from "@/components/TopBar";
 import { SemesterCard } from "@/components/SemesterCard";
 import { AddSemesterButton } from "@/components/AddSemesterButton";
 import { DashboardImportButton } from "@/components/DashboardImportButton";
+import { RevisionQueue } from "@/components/RevisionQueue";
+import { StudyLog } from "@/components/StudyLog";
+import { ExportDataButton } from "@/components/ExportDataButton";
 
 interface SearchParams { search?: string; archived?: string }
 
@@ -168,14 +171,70 @@ export default async function DashboardPage({
     };
   });
 
-  // Revision queue (all REVISE units across active semesters)
+  // Manually-flagged REVISE units
   const reviseUnits = await db.unit.findMany({
+    where: { status: "REVISE", course: { semester: { userId, archived: false } } },
+    include: { course: { include: { semester: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+
+  // Spaced-rep: DONE units whose nextReviewAt <= now
+  const dueUnits = await db.unit.findMany({
     where: {
-      status: "REVISE",
+      status: "DONE",
+      nextReviewAt: { lte: new Date() },
       course: { semester: { userId, archived: false } },
     },
     include: { course: { include: { semester: true } } },
+    orderBy: { nextReviewAt: "asc" },
+  });
+
+  // Study log data
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay()); // Sunday
+  weekStart.setHours(0, 0, 0, 0);
+
+  const sessions = await db.studySession.findMany({
+    where: { userId },
+    select: { minutes: true, createdAt: true },
     orderBy: { createdAt: "asc" },
+  });
+
+  const weekMinutes = sessions
+    .filter((s) => s.createdAt >= weekStart)
+    .reduce((sum, s) => sum + s.minutes, 0);
+
+  // Streak: consecutive calendar days with at least one session (working backwards from today)
+  const sessionDays = new Set(sessions.map((s) => s.createdAt.toISOString().slice(0, 10)));
+  let streak = 0;
+  const check = new Date(now);
+  // If today has no session, start from yesterday
+  if (!sessionDays.has(check.toISOString().slice(0, 10))) {
+    check.setDate(check.getDate() - 1);
+  }
+  while (sessionDays.has(check.toISOString().slice(0, 10))) {
+    streak++;
+    check.setDate(check.getDate() - 1);
+  }
+
+  // Heatmap: daily totals for last 120 days
+  const heatStart = new Date(now);
+  heatStart.setDate(now.getDate() - 119);
+  heatStart.setHours(0, 0, 0, 0);
+  const recentSessions = sessions.filter((s) => s.createdAt >= heatStart);
+  const dailyMap = new Map<string, number>();
+  for (const s of recentSessions) {
+    const d = s.createdAt.toISOString().slice(0, 10);
+    dailyMap.set(d, (dailyMap.get(d) ?? 0) + s.minutes);
+  }
+  const heatmapData = Array.from(dailyMap.entries()).map(([date, minutes]) => ({ date, minutes }));
+
+  // Courses for study log selector
+  const allCourses = await db.course.findMany({
+    where: { semester: { userId, archived: false } },
+    select: { id: true, name: true, code: true },
+    orderBy: { createdAt: "desc" },
   });
 
   // Nearest terminal exam (urgent countdown)
@@ -225,26 +284,36 @@ export default async function DashboardPage({
           </div>
         </div>
 
-        {/* Revision queue */}
-        {reviseUnits.length > 0 && showArchived !== "1" && (
-          <section className="mb-8 bg-orange-50 border border-orange-200 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-orange-800 uppercase tracking-wide mb-3">
-              Revision Queue ({reviseUnits.length})
-            </h2>
-            <div className="space-y-2">
-              {reviseUnits.map((u) => (
-                <Link
-                  key={u.id}
-                  href={`/unit/${u.id}`}
-                  className="flex items-center gap-3 bg-white border border-orange-100 rounded-lg px-3 py-2 hover:shadow-sm transition-shadow"
-                >
-                  <span className="w-2 h-2 rounded-full bg-orange-400 flex-shrink-0" />
-                  <span className="text-sm text-ink font-medium flex-1">{u.name}</span>
-                  <span className="text-xs text-ink-muted">{u.course.name}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
+        {/* Study log */}
+        {showArchived !== "1" && (
+          <StudyLog
+            weekMinutes={weekMinutes}
+            streak={streak}
+            heatmapData={heatmapData}
+            courses={allCourses}
+          />
+        )}
+
+        {/* Revision queues (spaced-rep + manual REVISE) */}
+        {showArchived !== "1" && (
+          <RevisionQueue
+            dueUnits={dueUnits.map((u) => ({
+              id: u.id,
+              number: u.number,
+              name: u.name,
+              nextReviewAt: u.nextReviewAt!.toISOString(),
+              courseId: u.courseId,
+              courseName: u.course.name,
+              semesterName: u.course.semester.name,
+            }))}
+            reviseUnits={reviseUnits.map((u) => ({
+              id: u.id,
+              number: u.number,
+              name: u.name,
+              courseId: u.courseId,
+              courseName: u.course.name,
+            }))}
+          />
         )}
 
         {/* Semester grid */}

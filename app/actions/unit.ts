@@ -61,6 +61,57 @@ export async function setUnitStatus(id: string, courseId: string, status: UnitSt
   const userId = await requireUser();
   await verifyCourseOwner(courseId, userId);
 
-  await db.unit.update({ where: { id }, data: { status } });
+  const now = new Date();
+  const data: Parameters<typeof db.unit.update>[0]["data"] = { status };
+
+  if (status === "DONE") {
+    const unit = await db.unit.findUnique({ where: { id }, select: { reviewIntervalDays: true } });
+    const interval = unit?.reviewIntervalDays ?? 7;
+    data.completedAt = now;
+    data.nextReviewAt = new Date(now.getTime() + interval * 86400000);
+  } else {
+    // Clear review schedule if moved away from DONE
+    data.completedAt = null;
+    data.nextReviewAt = null;
+  }
+
+  await db.unit.update({ where: { id }, data });
+  revalidatePath(`/course/${courseId}`);
+  revalidatePath("/");
+}
+
+const INTERVAL_LADDER = [1, 3, 7, 14, 30];
+
+export async function markUnitReviewed(id: string, courseId: string) {
+  const userId = await requireUser();
+  await verifyCourseOwner(courseId, userId);
+
+  const unit = await db.unit.findUnique({
+    where: { id },
+    select: { reviewIntervalDays: true },
+  });
+  if (!unit) throw new Error("Unit not found");
+
+  const current = unit.reviewIntervalDays;
+  const idx = INTERVAL_LADDER.indexOf(current);
+  const next = INTERVAL_LADDER[Math.min(idx + 1, INTERVAL_LADDER.length - 1)];
+  const nextReviewAt = new Date(Date.now() + next * 86400000);
+
+  await db.unit.update({
+    where: { id },
+    data: { reviewIntervalDays: next, nextReviewAt },
+  });
+  revalidatePath("/");
+}
+
+export async function markUnitNeedsWork(id: string, courseId: string) {
+  const userId = await requireUser();
+  await verifyCourseOwner(courseId, userId);
+
+  await db.unit.update({
+    where: { id },
+    data: { status: "REVISE", nextReviewAt: null, completedAt: null },
+  });
+  revalidatePath("/");
   revalidatePath(`/course/${courseId}`);
 }
