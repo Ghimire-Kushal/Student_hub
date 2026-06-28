@@ -138,17 +138,34 @@ export async function importSyllabusIntoSemester(
       },
     });
 
-    for (const unit of subject.units) {
-      const createdUnit = await db.unit.create({
-        data: { number: unit.number, name: unit.name, courseId: course.id, status: "NONE" },
-      });
+    if (subject.units.length === 0) {
+      console.warn(`[syllabus-import] Subject "${subject.name}" has 0 units — skipping unit creation.`);
+    }
 
-      if (unit.topics.length > 0) {
-        await db.topic.createMany({
-          data: unit.topics.map((t) => ({ text: t.text, unitId: createdUnit.id })),
+    for (const unit of subject.units) {
+      try {
+        const createdUnit = await db.unit.create({
+          data: { number: unit.number, name: unit.name, courseId: course.id, status: "NONE" },
         });
+
+        const topicTexts = unit.topics
+          .map((t) => (typeof t === "string" ? t : t.text))
+          .filter(Boolean);
+
+        if (topicTexts.length > 0) {
+          await db.topic.createMany({
+            data: topicTexts.map((text) => ({ text, unitId: createdUnit.id })),
+          });
+        }
+      } catch (err) {
+        console.error(`[syllabus-import] Failed to create unit ${unit.number} "${unit.name}":`, err);
+        throw err;
       }
     }
+
+    // Revalidate the newly created course page so it reflects units immediately
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/course/${course.id}`);
   }
 
   return { semesterId };

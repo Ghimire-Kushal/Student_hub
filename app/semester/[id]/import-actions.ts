@@ -45,4 +45,5 @@ export async function confirmImport(
 
   await importSyllabusIntoSemester(syllabus, { semesterId, userId: session.user.id });
   revalidatePath(`/semester/${semesterId}`);
+  revalidatePath(`/`); // refresh dashboard revision queue
 }

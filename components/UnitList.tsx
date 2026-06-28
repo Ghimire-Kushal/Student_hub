@@ -5,6 +5,7 @@ import Link from "next/link";
 import { UnitStatus } from "@prisma/client";
 import { createUnit, deleteUnit, setUnitStatus } from "@/app/actions/unit";
 import { updateSyllabus } from "@/app/actions/course";
+import { buildUnitsFromSyllabus } from "@/app/actions/build-units";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { statusColors } from "@/lib/theme";
 
@@ -35,6 +36,22 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
   const [syllabusError, setSyllabusError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
   const [isSavingSyllabus, startSyllabusTransition] = useTransition();
+  const [buildError, setBuildError] = useState<string | null>(null);
+  const [buildDone, setBuildDone] = useState<string | null>(null);
+  const [isBuildingUnits, startBuildTransition] = useTransition();
+
+  function handleBuildUnits() {
+    setBuildError(null);
+    setBuildDone(null);
+    startBuildTransition(async () => {
+      try {
+        const { created } = await buildUnitsFromSyllabus(course.id);
+        setBuildDone(`Created ${created} unit${created !== 1 ? "s" : ""} — refresh to see them.`);
+      } catch (e) {
+        setBuildError(e instanceof Error ? e.message : "Failed to build units.");
+      }
+    });
+  }
 
   function saveSyllabus() {
     setSyllabusError(null);
@@ -181,6 +198,27 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
               </div>
             );
           })}
+
+          {/* Build from syllabus — shown when no units exist but syllabus text is present */}
+          {units.length === 0 && course.syllabus?.trim() && (
+            <div className="bg-accent-light border border-accent/20 rounded-xl px-4 py-4 text-center space-y-2">
+              <p className="text-sm text-ink">
+                This course has a saved syllabus but no units yet.
+              </p>
+              {buildDone ? (
+                <p className="text-sm text-green-700 font-medium">{buildDone}</p>
+              ) : (
+                <button
+                  onClick={handleBuildUnits}
+                  disabled={isBuildingUnits}
+                  className="px-4 py-2 bg-accent text-white text-sm rounded-lg hover:bg-accent/90 disabled:opacity-50"
+                >
+                  {isBuildingUnits ? "Building…" : "Build units from syllabus"}
+                </button>
+              )}
+              {buildError && <p className="text-xs text-red-600">{buildError}</p>}
+            </div>
+          )}
 
           {/* Add unit form */}
           {adding ? (

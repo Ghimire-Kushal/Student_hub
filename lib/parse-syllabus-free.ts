@@ -134,8 +134,9 @@ export function parseSyllabusFree(text: string): ParsedSyllabus {
     }
 
     // ── Unit header ────────────────────────────────────────────────────────
+    // Handles: "Unit I: Title (5 hrs)", "Unit 2: Title", "## Unit 3: Title"
     const unitMatch = line.match(
-      /^Unit\s+([IVXLCDM]+|\d+)\s*[:.]\s*(.+?)(?:\s*\(?\s*\d+\s*(?:hrs?|hours?|LH)\s*\)?)?$/i,
+      /^(?:#+\s*)?Unit\s+([IVXLCDM]+|\d+)\s*[:.]\s*(.+?)(?:\s*[\[(]\s*\d+\s*(?:hrs?\.?|hours?|LH)\s*[\])])?$/i,
     );
     if (unitMatch) {
       if (!currentSubject) { flushPending(); }
@@ -154,11 +155,16 @@ export function parseSyllabusFree(text: string): ParsedSyllabus {
       continue;
     }
 
-    // ── Topic: lines like `1.1`, `5.10`, `3.2.1` ──────────────────────────
-    const topicMatch = line.match(/^(\d+(?:\.\d+)+)\s+(.+)$/);
-    if (topicMatch && currentSubject && currentSubject.units.length > 0) {
-      const topicText = topicMatch[2].trim().slice(0, 140);
-      currentSubject.units[currentSubject.units.length - 1].topics.push({ text: topicText });
+    // ── Topic: `1.1 Text` OR `- Text` (markdown list from buildSyllabusText) ─
+    const numberedTopic = line.match(/^(\d+(?:\.\d+)+)\s+(.+)$/);
+    const bulletTopic = line.match(/^[-*]\s+(.+)$/);
+    const topicText = numberedTopic
+      ? numberedTopic[2].trim()
+      : bulletTopic
+        ? bulletTopic[1].trim()
+        : null;
+    if (topicText && currentSubject && currentSubject.units.length > 0) {
+      currentSubject.units[currentSubject.units.length - 1].topics.push({ text: topicText.slice(0, 140) });
       continue;
     }
   }
