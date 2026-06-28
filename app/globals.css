@@ -43,8 +43,23 @@ body {
 }
 
 /* Replace hardcoded white card surfaces in dark mode */
-.dark .bg-white {
+.dark .bg-white,
+html.dark .bg-white {
   background-color: #231F1B !important;
+}
+
+/* Dark mode input/textarea backgrounds */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #231F1B;
+  color: var(--ink);
+  border-color: var(--border);
+}
+
+/* Dark mode border override */
+.dark .border-border {
+  border-color: var(--border);
 }
 
 /* KaTeX dark mode text */

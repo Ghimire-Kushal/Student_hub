@@ -52,6 +52,21 @@ export async function updateCourse(id: string, semesterId: string, formData: For
   revalidatePath(`/semester/${semesterId}`);
 }
 
+export async function updateSyllabus(id: string, syllabus: string) {
+  const userId = await requireUser();
+  const course = await db.course.findFirst({
+    where: { id, semester: { userId } },
+    select: { id: true, semesterId: true },
+  });
+  if (!course) throw new Error("Not found");
+
+  await db.course.update({
+    where: { id },
+    data: { syllabus: syllabus.trim() || null },
+  });
+  revalidatePath(`/course/${id}`);
+}
+
 export async function deleteCourse(id: string, semesterId: string) {
   const userId = await requireUser();
   const course = await db.course.findFirst({

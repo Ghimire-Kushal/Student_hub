@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { UnitStatus } from "@prisma/client";
 import { createUnit, deleteUnit, setUnitStatus } from "@/app/actions/unit";
+import { updateSyllabus } from "@/app/actions/course";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { statusColors } from "@/lib/theme";
 
@@ -29,7 +30,23 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
   const [tab, setTab] = useState<"units" | "syllabus">("units");
   const [adding, setAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingSyllabus, setEditingSyllabus] = useState(false);
+  const [syllabusText, setSyllabusText] = useState(course.syllabus ?? "");
+  const [syllabusError, setSyllabusError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+  const [isSavingSyllabus, startSyllabusTransition] = useTransition();
+
+  function saveSyllabus() {
+    setSyllabusError(null);
+    startSyllabusTransition(async () => {
+      try {
+        await updateSyllabus(course.id, syllabusText);
+        setEditingSyllabus(false);
+      } catch (e) {
+        setSyllabusError(e instanceof Error ? e.message : "Failed to save.");
+      }
+    });
+  }
 
   const deletingUnit = units.find((u) => u.id === deletingId);
 
@@ -57,11 +74,58 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
       </div>
 
       {tab === "syllabus" ? (
-        <div className="bg-white border border-border rounded-xl p-6">
-          {course.syllabus ? (
-            <pre className="font-mono text-sm text-ink whitespace-pre-wrap">{course.syllabus}</pre>
+        <div className="bg-white border border-border rounded-xl overflow-hidden">
+          {/* Toolbar */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <span className="text-sm font-medium text-ink">Course Syllabus</span>
+            {editingSyllabus ? (
+              <div className="flex items-center gap-2">
+                {syllabusError && <span className="text-xs text-red-500">{syllabusError}</span>}
+                <button
+                  onClick={() => { setEditingSyllabus(false); setSyllabusText(course.syllabus ?? ""); setSyllabusError(null); }}
+                  className="text-sm text-ink-muted hover:text-ink"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveSyllabus}
+                  disabled={isSavingSyllabus}
+                  className="text-sm px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50"
+                >
+                  {isSavingSyllabus ? "Saving…" : "Save"}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setEditingSyllabus(true)}
+                className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+            )}
+          </div>
+
+          {/* Content */}
+          {editingSyllabus ? (
+            <textarea
+              value={syllabusText}
+              onChange={(e) => setSyllabusText(e.target.value)}
+              rows={20}
+              autoFocus
+              placeholder="Paste or type the course syllabus here…"
+              className="w-full px-4 py-4 font-mono text-sm text-ink bg-white resize-y focus:outline-none"
+            />
           ) : (
-            <p className="text-ink-muted text-sm">No syllabus added yet.</p>
+            <div className="p-6">
+              {syllabusText ? (
+                <pre className="font-mono text-sm text-ink whitespace-pre-wrap">{syllabusText}</pre>
+              ) : (
+                <p className="text-ink-muted text-sm italic">No syllabus added yet. Click &ldquo;Edit&rdquo; to add one.</p>
+              )}
+            </div>
           )}
         </div>
       ) : (
