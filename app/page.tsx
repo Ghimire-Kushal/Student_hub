@@ -277,6 +277,7 @@ export default async function DashboardPage({
             </Link>
             {showArchived !== "1" && (
               <>
+                <ExportDataButton />
                 <DashboardImportButton />
                 <AddSemesterButton />
               </>

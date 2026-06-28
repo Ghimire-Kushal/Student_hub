@@ -17,7 +17,6 @@ interface Props {
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 
-const CELL_LEVELS = [0, 30, 60, 120, 180] as const;
 function getLevel(m: number) {
   if (m === 0) return 0;
   if (m < 30) return 1;
