@@ -5,6 +5,7 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { SemesterCard } from "@/components/SemesterCard";
 import { AddSemesterButton } from "@/components/AddSemesterButton";
+import { DashboardImportButton } from "@/components/DashboardImportButton";
 
 interface SearchParams { search?: string; archived?: string }
 
@@ -215,7 +216,12 @@ export default async function DashboardPage({
             >
               {showArchived === "1" ? "← Active" : "Archived"}
             </Link>
-            {showArchived !== "1" && <AddSemesterButton />}
+            {showArchived !== "1" && (
+              <>
+                <DashboardImportButton />
+                <AddSemesterButton />
+              </>
+            )}
           </div>
         </div>
 
