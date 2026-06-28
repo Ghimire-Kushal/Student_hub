@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UnitStatus {
+  NONE
+  ONGOING
+  REVISE
+  DONE
+}
+
+enum ResourceType {
+  NOTES
+  PAST_PAPERS
+  PAST_QUESTIONS
+  KEY_NOTES
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  password  String
+  name      String?
+  createdAt DateTime   @default(now())
+  semesters Semester[]
+}
+
+model Semester {
+  id           String    @id @default(cuid())
+  name         String
+  terminalDate DateTime?
+  archived     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courses      Course[]
+}
+
+model Course {
+  id         String    @id @default(cuid())
+  code       String
+  name       String
+  credits    Int       @default(3)
+  examDate   DateTime?
+  syllabus   String?
+  color      String    @default("#8B5CF6")
+  lockOrder  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  semesterId String
+  semester   Semester  @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  units      Unit[]
+}
+
+model Unit {
+  id        String     @id @default(cuid())
+  number    Int
+  name      String
+  status    UnitStatus @default(NONE)
+  createdAt DateTime   @default(now())
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topics    Topic[]
+  resources Resource[]
+}
+
+model Topic {
+  id        String   @id @default(cuid())
+  text      String
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  unitId    String
+  unit      Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+}
+
+model Resource {
+  id        String       @id @default(cuid())
+  type      ResourceType
+  title     String
+  body      String?
+  imageUrl  String?
+  fileUrl   String?
+  fileName  String?
+  createdAt DateTime     @default(now())
+  unitId    String
+  unit      Unit         @relation(fields: [unitId], references: [id], onDelete: Cascade)
+}
