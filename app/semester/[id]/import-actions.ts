@@ -2,7 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { parseSyllabus, importSyllabusIntoSemester } from "@/lib/syllabus-import";
+import { importSyllabusIntoSemester } from "@/lib/syllabus-import";
+import { routeParseSyllabus } from "@/lib/parse-syllabus-router";
 import type { ParsedSyllabus } from "@/lib/syllabus-import";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
@@ -17,7 +18,7 @@ export async function previewSyllabus(
   const sem = await db.semester.findFirst({ where: { id: semesterId, userId: session.user.id } });
   if (!sem) throw new Error("Semester not found");
 
-  return parseSyllabus(rawText);
+  return routeParseSyllabus(rawText);
 }
 
 export async function previewSyllabusFromPdfUrl(
@@ -32,7 +33,7 @@ export async function previewSyllabusFromPdfUrl(
 
   const { extractPdfText } = await import("@/lib/syllabus-import-pdf");
   const text = await extractPdfText(pdfUrl);
-  return parseSyllabus(text);
+  return routeParseSyllabus(text);
 }
 
 export async function confirmImport(

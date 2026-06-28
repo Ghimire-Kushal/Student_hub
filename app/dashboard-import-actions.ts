@@ -2,7 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { parseSyllabus, importSyllabusIntoSemester } from "@/lib/syllabus-import";
+import { importSyllabusIntoSemester } from "@/lib/syllabus-import";
+import { routeParseSyllabus } from "@/lib/parse-syllabus-router";
 import type { ParsedSyllabus } from "@/lib/syllabus-import";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
@@ -10,7 +11,7 @@ import { db } from "@/lib/db";
 export async function previewSyllabusFromText(rawText: string): Promise<ParsedSyllabus> {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
-  return parseSyllabus(rawText);
+  return routeParseSyllabus(rawText);
 }
 
 export interface ConfirmDashboardImportArgs {
