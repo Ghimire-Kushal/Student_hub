@@ -5,6 +5,7 @@ export default defineConfig({
   earlyAccess: true,
   schema: path.join("prisma", "schema.prisma"),
   migrate: {
+    url: process.env.DATABASE_URL!,
     async adapter() {
       const { PrismaNeon } = await import("@prisma/adapter-neon");
       const { neonConfig } = await import("@neondatabase/serverless");
