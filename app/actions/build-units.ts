@@ -11,7 +11,7 @@ export async function buildUnitsFromSyllabus(courseId: string): Promise<{ create
 
   const course = await db.course.findFirst({
     where: { id: courseId, semester: { userId: session.user.id } },
-    select: { id: true, syllabus: true, semesterId: true, _count: { select: { units: true } } },
+    select: { id: true, syllabus: true, _count: { select: { units: true } } },
   });
   if (!course) throw new Error("Course not found");
   if (!course.syllabus?.trim()) throw new Error("No syllabus text to parse");
@@ -19,11 +19,10 @@ export async function buildUnitsFromSyllabus(courseId: string): Promise<{ create
 
   const parsed = parseSyllabusFree(course.syllabus);
 
-  // Use first subject that has units, or combine all units across subjects
   const allUnits = parsed.subjects.flatMap((s) => s.units);
   if (allUnits.length === 0) {
     throw new Error(
-      "No units detected in the syllabus. Make sure the text contains 'Unit N: Title' headings.",
+      "No units detected. Make sure the syllabus contains 'Unit N: Title' headings.",
     );
   }
 
@@ -37,16 +36,11 @@ export async function buildUnitsFromSyllabus(courseId: string): Promise<{ create
 
   for (const unit of units) {
     const created = await db.unit.create({
-      data: {
-        number: unit.number,
-        name: unit.name,
-        courseId,
-        status: "NONE",
-      },
+      data: { number: unit.number, name: unit.name, courseId, status: "NONE" },
     });
     if (unit.topics.length > 0) {
       await db.topic.createMany({
-        data: unit.topics.map((t) => ({ text: t.text, unitId: created.id })),
+        data: unit.topics.map((t) => ({ text: t, unitId: created.id })),
       });
     }
   }

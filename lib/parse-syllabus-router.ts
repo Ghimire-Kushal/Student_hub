@@ -21,19 +21,18 @@ export async function routeParseSyllabus(rawText: string): Promise<ParsedSyllabu
     return parseSyllabus(rawText);
   }
 
-  // free or auto: try rule-based first
   const freeResult = parseSyllabusFree(rawText);
 
   if (mode === "free") {
     if (!hasUnits(freeResult)) {
       throw new Error(
-        "Couldn't detect any units — make sure the syllabus uses the 'Unit N: Title' and '1.1 / 1.2' numbering format, or paste the cleaned text.",
+        "Couldn't detect any units — make sure the syllabus uses 'Unit N: Title' headings and '1.1 / 1.2' topic lines.",
       );
     }
     return freeResult;
   }
 
-  // auto: use free result if it found units, otherwise AI fallback
+  // auto: free first, AI fallback
   if (hasUnits(freeResult)) return freeResult;
 
   const { parseSyllabus } = await import("./syllabus-import");
@@ -41,7 +40,7 @@ export async function routeParseSyllabus(rawText: string): Promise<ParsedSyllabu
 
   if (!hasUnits(aiResult)) {
     throw new Error(
-      "Couldn't detect any units — make sure the syllabus uses the 'Unit N: Title' and '1.1 / 1.2' numbering format, or paste the cleaned text.",
+      "Couldn't detect any units — make sure the syllabus uses 'Unit N: Title' headings and '1.1 / 1.2' topic lines.",
     );
   }
   return aiResult;
