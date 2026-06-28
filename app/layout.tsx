@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, Spline_Sans_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces",
   display: "swap",
 });
-//test
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -25,18 +26,15 @@ export const metadata: Metadata = {
   description: "Track your academic progress, units, and resources",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
       className={`${fraunces.variable} ${inter.variable} ${splineSansMono.variable}`}
+      suppressHydrationWarning
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

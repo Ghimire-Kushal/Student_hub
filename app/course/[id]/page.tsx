@@ -6,6 +6,7 @@ import { TopBar } from "@/components/TopBar";
 import { UnitList } from "@/components/UnitList";
 import { BackLink } from "@/components/BackLink";
 import { ExportPdfButton } from "@/components/ExportPdfButton";
+import { ShareButton } from "@/components/ShareButton";
 
 export default async function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -48,8 +49,8 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
 
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
-            <div />
+          <div className="flex items-center justify-end gap-2 flex-wrap mb-2">
+            <ShareButton courseId={course.id} shareToken={course.shareToken ?? null} />
             <ExportPdfButton href={`/print/course/${course.id}`} label="Export PDF" />
           </div>
           <div className="flex items-start gap-3">

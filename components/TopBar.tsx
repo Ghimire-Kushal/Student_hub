@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface Props {
   userEmail?: string | null;
@@ -42,6 +43,7 @@ export function TopBar({ userEmail }: Props) {
 
         <div className="flex items-center gap-3 ml-auto">
           <span className="text-xs text-ink-muted hidden sm:block">{userEmail}</span>
+          <ThemeToggle />
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="text-sm text-ink-muted hover:text-ink transition-colors"

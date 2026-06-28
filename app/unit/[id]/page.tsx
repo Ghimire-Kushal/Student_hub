@@ -108,6 +108,7 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
               imageUrl: r.imageUrl,
               fileUrl: r.fileUrl,
               fileName: r.fileName,
+              tags: r.tags,
             }))}
           />
         </section>
