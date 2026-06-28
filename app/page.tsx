@@ -5,7 +5,6 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { SemesterCard } from "@/components/SemesterCard";
 import { AddSemesterButton } from "@/components/AddSemesterButton";
-import { DashboardImportButton } from "@/components/DashboardImportButton";
 import { RevisionQueue } from "@/components/RevisionQueue";
 import { StudyLog } from "@/components/StudyLog";
 import { ExportDataButton } from "@/components/ExportDataButton";
@@ -278,7 +277,6 @@ export default async function DashboardPage({
             {showArchived !== "1" && (
               <>
                 <ExportDataButton />
-                <DashboardImportButton />
                 <AddSemesterButton />
               </>
             )}

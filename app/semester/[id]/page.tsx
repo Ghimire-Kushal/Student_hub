@@ -5,7 +5,6 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { CourseCard } from "@/components/CourseCard";
 import { AddCourseButton } from "@/components/AddCourseButton";
-import { ImportSyllabusButton } from "./ImportSyllabusButton";
 import { BackLink } from "@/components/BackLink";
 
 export default async function SemesterPage({ params }: { params: Promise<{ id: string }> }) {
@@ -51,10 +50,7 @@ export default async function SemesterPage({ params }: { params: Promise<{ id: s
               </p>
             )}
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <ImportSyllabusButton semesterId={semester.id} />
-            <AddCourseButton semesterId={semester.id} />
-          </div>
+          <AddCourseButton semesterId={semester.id} />
         </div>
 
         {semester.courses.length === 0 ? (

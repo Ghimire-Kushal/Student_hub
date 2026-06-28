@@ -16,7 +16,12 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
     where: { id, semester: { userId: session.user.id } },
     include: {
       semester: true,
-      units: { orderBy: { number: "asc" } },
+      units: {
+        orderBy: { number: "asc" },
+        include: {
+          _count: { select: { topics: true, resources: true } },
+        },
+      },
     },
   });
 
@@ -78,6 +83,7 @@ export default async function CoursePage({ params }: { params: Promise<{ id: str
             name: u.name,
             status: u.status,
             courseId: u.courseId,
+            hasContent: u._count.topics > 0 || u._count.resources > 0,
           }))}
         />
       </main>

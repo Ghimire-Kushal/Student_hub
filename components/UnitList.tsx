@@ -13,6 +13,7 @@ interface Unit {
   name: string;
   status: UnitStatus;
   courseId: string;
+  hasContent: boolean; // true if unit has any topics or resources
 }
 
 interface Course {
@@ -35,6 +36,7 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
   function isLocked(unit: Unit): boolean {
     if (!course.lockOrder) return false;
     if (unit.number === 1) return false;
+    if (unit.hasContent) return false; // never hide a unit that has notes/topics
     const prev = units.find((u) => u.number === unit.number - 1);
     return prev?.status !== "DONE";
   }

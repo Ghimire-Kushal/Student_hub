@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { ResourceType } from "@prisma/client";
 import { createResource } from "@/app/actions/resource";
 import { UploadButton } from "@uploadthing/react";
@@ -21,17 +21,30 @@ interface Props {
 
 export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
   const [imageUrl, setImageUrl] = useState("");
+  const [imageKey, setImageKey] = useState("");
   const [fileUrl, setFileUrl] = useState("");
+  const [fileKey, setFileKey] = useState("");
   const [fileName, setFileName] = useState("");
   const [type, setType] = useState<ResourceType>(defaultType);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  async function action(fd: FormData) {
+  function handleSubmit(fd: FormData) {
     fd.set("imageUrl", imageUrl);
+    fd.set("imageKey", imageKey);
     fd.set("fileUrl", fileUrl);
+    fd.set("fileKey", fileKey);
     fd.set("fileName", fileName);
     fd.set("type", type);
-    await createResource(unitId, fd);
-    onClose();
+    setError(null);
+    startTransition(async () => {
+      try {
+        await createResource(unitId, fd);
+        onClose();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to save resource.");
+      }
+    });
   }
 
   return (
@@ -39,7 +52,7 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
       <div className="bg-paper border border-border rounded-xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold text-ink mb-4">Add resource</h2>
 
-        <form action={action} className="space-y-4">
+        <form action={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-ink mb-1">Type</label>
             <select
@@ -83,15 +96,18 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
             {imageUrl ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-green-700">✓ Image uploaded</span>
-                <button type="button" onClick={() => setImageUrl("")} className="text-xs text-red-500 hover:underline">Remove</button>
+                <button type="button" onClick={() => { setImageUrl(""); setImageKey(""); }} className="text-xs text-red-500 hover:underline">Remove</button>
               </div>
             ) : (
               <UploadButton<OurFileRouter, "imageUploader">
                 endpoint="imageUploader"
-                onClientUploadComplete={(res: { ufsUrl?: string; url: string }[]) => {
-                  if (res?.[0]) setImageUrl(res[0].ufsUrl ?? res[0].url);
+                onClientUploadComplete={(res: { ufsUrl?: string; url: string; key?: string }[]) => {
+                  if (res?.[0]) {
+                    setImageUrl(res[0].ufsUrl ?? res[0].url);
+                    setImageKey(res[0].key ?? "");
+                  }
                 }}
-                onUploadError={(err: Error) => alert(`Upload error: ${err.message}`)}
+                onUploadError={(err: Error) => setError(`Image upload failed: ${err.message}`)}
                 appearance={{
                   button: "bg-accent text-white text-sm rounded-lg px-3 py-2 hover:bg-accent/90",
                   allowedContent: "text-xs text-ink-muted",
@@ -106,18 +122,19 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
             {fileUrl ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-green-700">✓ {fileName}</span>
-                <button type="button" onClick={() => { setFileUrl(""); setFileName(""); }} className="text-xs text-red-500 hover:underline">Remove</button>
+                <button type="button" onClick={() => { setFileUrl(""); setFileKey(""); setFileName(""); }} className="text-xs text-red-500 hover:underline">Remove</button>
               </div>
             ) : (
               <UploadButton<OurFileRouter, "fileUploader">
                 endpoint="fileUploader"
-                onClientUploadComplete={(res: { ufsUrl?: string; url: string; name: string }[]) => {
+                onClientUploadComplete={(res: { ufsUrl?: string; url: string; name: string; key?: string }[]) => {
                   if (res?.[0]) {
                     setFileUrl(res[0].ufsUrl ?? res[0].url);
+                    setFileKey(res[0].key ?? "");
                     setFileName(res[0].name);
                   }
                 }}
-                onUploadError={(err: Error) => alert(`Upload error: ${err.message}`)}
+                onUploadError={(err: Error) => setError(`File upload failed: ${err.message}`)}
                 appearance={{
                   button: "bg-accent text-white text-sm rounded-lg px-3 py-2 hover:bg-accent/90",
                   allowedContent: "text-xs text-ink-muted",
@@ -126,12 +143,18 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
             )}
           </div>
 
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <div className="flex gap-3 justify-end pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-ink-muted hover:text-ink border border-border rounded-lg">
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 text-sm text-white bg-accent hover:bg-accent/90 rounded-lg">
-              Save
+            <button
+              type="submit"
+              disabled={isPending}
+              className="px-4 py-2 text-sm text-white bg-accent hover:bg-accent/90 rounded-lg disabled:opacity-50"
+            >
+              {isPending ? "Saving…" : "Save"}
             </button>
           </div>
         </form>

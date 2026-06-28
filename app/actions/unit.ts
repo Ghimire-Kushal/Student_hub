@@ -53,7 +53,22 @@ export async function deleteUnit(id: string, courseId: string) {
   const userId = await requireUser();
   await verifyCourseOwner(courseId, userId);
 
+  // Collect upload keys before cascade delete removes them
+  const unit = await db.unit.findUnique({
+    where: { id },
+    include: { resources: { select: { imageKey: true, fileKey: true } } },
+  });
+  const keys = unit?.resources.flatMap((r) => [r.imageKey, r.fileKey]).filter(Boolean) as string[];
+
   await db.unit.delete({ where: { id } });
+
+  if (keys.length > 0) {
+    try {
+      const { UTApi } = await import("uploadthing/server");
+      await new UTApi().deleteFiles(keys);
+    } catch { /* non-fatal */ }
+  }
+
   revalidatePath(`/course/${courseId}`);
 }
 

@@ -10,8 +10,8 @@ export const ourFileRouter = {
       if (!session?.user?.id) throw new Error("Unauthorized");
       return { userId: session.user.id };
     })
-    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string } }) => {
-      return { url: file.ufsUrl, name: file.name };
+    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string; key: string } }) => {
+      return { url: file.ufsUrl, name: file.name, key: file.key };
     }),
 
   fileUploader: f({
@@ -26,8 +26,8 @@ export const ourFileRouter = {
       if (!session?.user?.id) throw new Error("Unauthorized");
       return { userId: session.user.id };
     })
-    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string } }) => {
-      return { url: file.ufsUrl, name: file.name };
+    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string; key: string } }) => {
+      return { url: file.ufsUrl, name: file.name, key: file.key };
     }),
 } satisfies FileRouter;
 
