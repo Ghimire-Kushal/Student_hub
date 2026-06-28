@@ -38,7 +38,7 @@ export async function removeTag(resourceId: string, unitId: string, tag: string)
 
   await db.resource.update({
     where: { id: resourceId },
-    data: { tags: resource.tags.filter((t) => t !== tag) },
+    data: { tags: resource.tags.filter((t: string) => t !== tag) },
   });
   revalidatePath(`/unit/${unitId}`);
 }
