@@ -5,10 +5,8 @@ import Link from "next/link";
 import { TopBar } from "@/components/TopBar";
 import { TopicChecklist } from "@/components/TopicChecklist";
 import { ResourceTabs } from "@/components/ResourceTabs";
-import { statusColors } from "@/lib/theme";
-import { UnitStatus } from "@prisma/client";
-import { setUnitStatus } from "@/app/actions/unit";
 import { BackLink } from "@/components/BackLink";
+import { UnitStatusSelect } from "@/components/UnitStatusSelect";
 import { ExportPdfButton } from "@/components/ExportPdfButton";
 import { PracticeButton } from "@/components/PracticeButton";
 
@@ -28,7 +26,6 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
 
   if (!unit) notFound();
 
-  const colors = statusColors[unit.status as UnitStatus];
   const donePct = unit.topics.length
     ? Math.round((unit.topics.filter((t) => t.done).length / unit.topics.length) * 100)
     : 0;
@@ -62,27 +59,7 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
           <div className="flex items-center gap-2 flex-wrap">
             <PracticeButton questions={unit.resources.filter((r) => r.type === "PAST_QUESTIONS").map((r) => ({ id: r.id, title: r.title, body: r.body }))} />
             <ExportPdfButton href={`/print/unit/${unit.id}`} label="Export PDF" />
-          <form
-            action={async (fd) => {
-              "use server";
-              const session2 = await (await import("@/lib/auth")).auth();
-              if (!session2?.user?.id) throw new Error("Unauthorized");
-              await setUnitStatus(id, unit.courseId, fd.get("status") as UnitStatus);
-            }}
-            className="flex items-center gap-2"
-          >
-            <select
-              name="status"
-              defaultValue={unit.status}
-              onChange={(e) => (e.target.form as HTMLFormElement).requestSubmit()}
-              className="text-sm px-3 py-1.5 rounded-full border font-medium focus:outline-none focus:ring-2 focus:ring-accent"
-              style={{ backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }}
-            >
-              {(["NONE", "ONGOING", "REVISE", "DONE"] as UnitStatus[]).map((s) => (
-                <option key={s} value={s}>{statusColors[s].label}</option>
-              ))}
-            </select>
-          </form>
+          <UnitStatusSelect unitId={unit.id} courseId={unit.courseId} status={unit.status} />
           </div>
         </div>
 
