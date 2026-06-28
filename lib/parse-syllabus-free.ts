@@ -127,7 +127,7 @@ export function parseSyllabusFree(text: string): ParsedSyllabus {
     }
 
     // ── Credits ────────────────────────────────────────────────────────────
-    const credMatch = line.match(/\bCredit(?:\s+Hrs?(?:ours?)?)?\s*:\s*(\d+(?:\.\d+)?)/i);
+    const credMatch = line.match(/\bCredits?\s*(?:Hrs?(?:ours?)?)?\s*:\s*(\d+(?:\.\d+)?)/i);
     if (credMatch && currentSubject) {
       currentSubject.credits = parseFloat(credMatch[1]);
       continue;
@@ -144,7 +144,7 @@ export function parseSyllabusFree(text: string): ParsedSyllabus {
         subjects.push(currentSubject);
       }
       const rawNum = unitMatch[1].toUpperCase();
-      const num = romanToInt(rawNum) ?? parseInt(rawNum, 10) || ++unitSeq;
+      const num = romanToInt(rawNum) ?? (parseInt(rawNum, 10) || ++unitSeq);
       unitSeq = num;
       const unitName = unitMatch[2]
         .trim()
