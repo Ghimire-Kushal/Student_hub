@@ -23,12 +23,14 @@ export function MarkdownMath({ children }: Props) {
           ul: ({ children: c }) => <ul className="list-disc pl-5 mb-2 space-y-0.5">{c}</ul>,
           ol: ({ children: c }) => <ol className="list-decimal pl-5 mb-2 space-y-0.5">{c}</ol>,
           li: ({ children: c }) => <li className="leading-relaxed">{c}</li>,
-          code: ({ inline, children: c, ...props }: { inline?: boolean; children?: React.ReactNode; [key: string]: unknown }) =>
-            inline ? (
-              <code className="font-mono text-xs bg-accent-light text-accent px-1 py-0.5 rounded" {...props}>{c}</code>
-            ) : (
+          code: ({ node, children: c, className, ...props }) => {
+            const isBlock = /language-/.test(className ?? "");
+            return isBlock ? (
               <code className="block font-mono text-xs bg-gray-50 border border-border rounded-lg p-3 overflow-x-auto mb-2 whitespace-pre" {...props}>{c}</code>
-            ),
+            ) : (
+              <code className="font-mono text-xs bg-accent-light text-accent px-1 py-0.5 rounded" {...props}>{c}</code>
+            );
+          },
           blockquote: ({ children: c }) => (
             <blockquote className="border-l-2 border-accent pl-3 italic text-ink-muted mb-2">{c}</blockquote>
           ),
