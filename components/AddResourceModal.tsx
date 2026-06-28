@@ -85,10 +85,10 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
             ) : (
               <UploadButton<OurFileRouter, "imageUploader">
                 endpoint="imageUploader"
-                onClientUploadComplete={(res) => {
+                onClientUploadComplete={(res: { ufsUrl?: string; url: string }[]) => {
                   if (res?.[0]) setImageUrl(res[0].ufsUrl ?? res[0].url);
                 }}
-                onUploadError={(err) => alert(`Upload error: ${err.message}`)}
+                onUploadError={(err: Error) => alert(`Upload error: ${err.message}`)}
                 appearance={{
                   button: "bg-accent text-white text-sm rounded-lg px-3 py-2 hover:bg-accent/90",
                   allowedContent: "text-xs text-ink-muted",
@@ -108,13 +108,13 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
             ) : (
               <UploadButton<OurFileRouter, "fileUploader">
                 endpoint="fileUploader"
-                onClientUploadComplete={(res) => {
+                onClientUploadComplete={(res: { ufsUrl?: string; url: string; name: string }[]) => {
                   if (res?.[0]) {
                     setFileUrl(res[0].ufsUrl ?? res[0].url);
                     setFileName(res[0].name);
                   }
                 }}
-                onUploadError={(err) => alert(`Upload error: ${err.message}`)}
+                onUploadError={(err: Error) => alert(`Upload error: ${err.message}`)}
                 appearance={{
                   button: "bg-accent text-white text-sm rounded-lg px-3 py-2 hover:bg-accent/90",
                   allowedContent: "text-xs text-ink-muted",

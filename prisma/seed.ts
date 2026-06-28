@@ -1,7 +1,9 @@
 import { PrismaClient, UnitStatus, ResourceType } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import bcrypt from "bcryptjs";
 
-const db = new PrismaClient();
+const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
+const db = new PrismaClient({ adapter });
 
 async function main() {
   // Clean existing demo data

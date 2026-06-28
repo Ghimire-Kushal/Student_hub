@@ -10,7 +10,7 @@ export const ourFileRouter = {
       if (!session?.user?.id) throw new Error("Unauthorized");
       return { userId: session.user.id };
     })
-    .onUploadComplete(async ({ file }) => {
+    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string } }) => {
       return { url: file.ufsUrl, name: file.name };
     }),
 
@@ -26,7 +26,7 @@ export const ourFileRouter = {
       if (!session?.user?.id) throw new Error("Unauthorized");
       return { userId: session.user.id };
     })
-    .onUploadComplete(async ({ file }) => {
+    .onUploadComplete(async ({ file }: { file: { ufsUrl: string; name: string } }) => {
       return { url: file.ufsUrl, name: file.name };
     }),
 } satisfies FileRouter;
