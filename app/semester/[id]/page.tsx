@@ -31,14 +31,14 @@ export default async function SemesterPage({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         <BackLink href="/" label="Dashboard" />
 
         {/* Breadcrumb */}
-        <nav className="text-sm text-ink-muted mb-6 flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="text-sm text-ink-muted mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-ink transition-colors">Dashboard</Link>
-          <span>/</span>
-          <span className="text-ink font-medium">{semester.name}</span>
+          <span aria-hidden="true">/</span>
+          <span className="text-ink font-medium" aria-current="page">{semester.name}</span>
         </nav>
 
         <div className="flex items-start justify-between mb-8 gap-4 flex-wrap">

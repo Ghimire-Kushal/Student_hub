@@ -53,11 +53,6 @@ export function CourseForm({ semesterId, onClose, existing }: Props) {
           placeholder="Digital Systems" />
       </div>
       <div>
-        <label className="block text-sm font-medium text-ink mb-1">Exam date</label>
-        <input name="examDate" type="date" defaultValue={existing?.examDate?.slice(0, 10) ?? ""}
-          className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent" />
-      </div>
-      <div>
         <label className="block text-sm font-medium text-ink mb-1">Syllabus</label>
         <textarea name="syllabus" rows={3} defaultValue={existing?.syllabus ?? ""}
           className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-white text-ink focus:outline-none focus:ring-2 focus:ring-accent resize-none"

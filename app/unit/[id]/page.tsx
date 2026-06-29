@@ -33,18 +33,18 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-3xl mx-auto px-4 md:px-6 py-8">
         <BackLink href={`/course/${unit.course.id}`} label={unit.course.name} />
 
         {/* Breadcrumb */}
-        <nav className="text-sm text-ink-muted mb-6 flex items-center gap-2 flex-wrap">
+        <nav aria-label="Breadcrumb" className="text-sm text-ink-muted mb-6 flex items-center gap-2 flex-wrap">
           <Link href="/" className="hover:text-ink">Dashboard</Link>
-          <span>/</span>
+          <span aria-hidden="true">/</span>
           <Link href={`/semester/${unit.course.semester.id}`} className="hover:text-ink">{unit.course.semester.name}</Link>
-          <span>/</span>
+          <span aria-hidden="true">/</span>
           <Link href={`/course/${unit.course.id}`} className="hover:text-ink">{unit.course.name}</Link>
-          <span>/</span>
-          <span className="text-ink font-medium">Unit {unit.number}</span>
+          <span aria-hidden="true">/</span>
+          <span className="text-ink font-medium" aria-current="page">Unit {unit.number}</span>
         </nav>
 
         {/* Header */}

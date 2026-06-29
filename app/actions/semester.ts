@@ -29,12 +29,21 @@ export async function updateSemester(id: string, formData: FormData) {
   const userId = await requireUser();
   const name = formData.get("name") as string;
   const terminalDate = formData.get("terminalDate") as string;
+  const examDate = terminalDate ? new Date(terminalDate) : null;
 
   await db.semester.updateMany({
     where: { id, userId },
-    data: { name, terminalDate: terminalDate ? new Date(terminalDate) : null },
+    data: { name, terminalDate: examDate },
   });
+
+  // Propagate terminal date to all courses in this semester
+  await db.course.updateMany({
+    where: { semester: { id, userId } },
+    data: { examDate },
+  });
+
   revalidatePath("/");
+  revalidatePath(`/semester/${id}`);
 }
 
 export async function deleteSemester(id: string) {

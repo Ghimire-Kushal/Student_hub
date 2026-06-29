@@ -70,7 +70,7 @@ export default async function DashboardPage({
     return (
       <div className="min-h-screen">
         <TopBar userEmail={session.user.email} />
-        <main className="max-w-5xl mx-auto px-4 py-8">
+        <main id="main-content" className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
           <h1 className="text-2xl font-semibold text-ink mb-6">
             Search results for &ldquo;{search}&rdquo;
           </h1>
@@ -250,7 +250,7 @@ export default async function DashboardPage({
     <div className="min-h-screen">
       <TopBar userEmail={session.user.email} />
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main id="main-content" className="max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Urgent terminal exam banner */}
         {terminalDaysLeft !== null && terminalDaysLeft <= 14 && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-5 py-4 flex items-center gap-3">
