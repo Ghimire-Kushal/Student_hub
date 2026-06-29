@@ -187,8 +187,8 @@ export function UnitList({ course, units }: { course: Course; units: Unit[] }) {
                   {!locked && (
                     <button
                       onClick={() => setDeletingId(unit.id)}
+                      aria-label={`Delete unit "${unit.name}"`}
                       className="text-ink-muted hover:text-red-500 transition-colors ml-1 text-lg leading-none"
-                      title="Delete unit"
                     >
                       ×
                     </button>

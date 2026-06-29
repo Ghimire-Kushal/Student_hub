@@ -23,7 +23,7 @@ export function Modal({ open, onClose, title, children }: Props) {
     <dialog
       ref={ref}
       onClose={onClose}
-      className="rounded-xl border border-border bg-paper p-6 shadow-xl backdrop:bg-ink/30 w-full max-w-md"
+      className="rounded-xl border border-border bg-paper p-6 shadow-xl backdrop:bg-ink/30 w-full max-w-md mx-4 sm:mx-auto"
     >
       <h2 className="text-lg font-semibold text-ink mb-4">{title}</h2>
       {children}

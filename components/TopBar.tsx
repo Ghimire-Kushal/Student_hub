@@ -45,8 +45,8 @@ export function TopBar({ userEmail }: Props) {
         <div className="flex items-center gap-3 ml-auto">
           <Link
             href="/profile"
-            className="text-xs text-ink-muted hover:text-ink hidden sm:block transition-colors"
-            title="Profile settings"
+            className="text-xs text-ink-muted hover:text-ink hidden sm:block transition-colors truncate max-w-[10rem]"
+            title={userEmail ?? "Profile settings"}
           >
             {userEmail}
           </Link>
