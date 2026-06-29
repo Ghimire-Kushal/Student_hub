@@ -54,7 +54,7 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/30">
-      <div className="bg-paper border border-border rounded-xl p-6 w-full max-w-lg shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-paper border border-border rounded-xl p-6 w-full max-w-lg mx-4 sm:mx-0 shadow-xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold text-ink mb-4">Add resource</h2>
 
         <form action={handleSubmit} className="space-y-4">

@@ -28,11 +28,14 @@ export async function createUnit(courseId: string, formData: FormData) {
     orderBy: { number: "desc" },
   });
 
+  const name = formData.get("name");
+  if (typeof name !== "string" || !name.trim()) throw new Error("Unit name is required");
+
   await db.unit.create({
     data: {
       courseId,
       number: (last?.number ?? 0) + 1,
-      name: formData.get("name") as string,
+      name: name.trim(),
     },
   });
   revalidatePath(`/course/${courseId}`);
@@ -42,9 +45,12 @@ export async function updateUnit(id: string, courseId: string, formData: FormDat
   const userId = await requireUser();
   await verifyCourseOwner(courseId, userId);
 
+  const name = formData.get("name");
+  if (typeof name !== "string" || !name.trim()) throw new Error("Unit name is required");
+
   await db.unit.update({
     where: { id },
-    data: { name: formData.get("name") as string },
+    data: { name: name.trim() },
   });
   revalidatePath(`/course/${courseId}`);
 }

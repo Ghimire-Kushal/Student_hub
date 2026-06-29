@@ -36,11 +36,16 @@ export async function createResource(unitId: string, formData: FormData) {
   const userId = await requireUser();
   await verifyUnitOwner(unitId, userId);
 
+  const title = formData.get("title");
+  if (typeof title !== "string" || !title.trim()) throw new Error("Title is required");
+  const type = formData.get("type");
+  if (typeof type !== "string") throw new Error("Type is required");
+
   await db.resource.create({
     data: {
       unitId,
-      type: formData.get("type") as ResourceType,
-      title: formData.get("title") as string,
+      type: type as ResourceType,
+      title: title.trim(),
       body: (formData.get("body") as string) || null,
       imageUrl: (formData.get("imageUrl") as string) || null,
       imageKey: (formData.get("imageKey") as string) || null,
