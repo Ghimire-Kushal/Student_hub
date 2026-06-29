@@ -30,6 +30,11 @@ export function AddResourceModal({ unitId, defaultType, onClose }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(fd: FormData) {
+    const title = fd.get("title");
+    if (typeof title !== "string" || !title.trim()) {
+      setError("Title is required.");
+      return;
+    }
     fd.set("imageUrl", imageUrl);
     fd.set("imageKey", imageKey);
     fd.set("fileUrl", fileUrl);
