@@ -10,6 +10,13 @@ import { MarkdownMath } from "./MarkdownMath";
 
 const PRESET_TAGS = ["5-marks", "10-marks", "numerical", "frequently-asked", "definition"];
 
+const TYPE_LABELS: Record<string, string> = {
+  NOTES: "Notes",
+  PAST_PAPERS: "Papers",
+  PAST_QUESTIONS: "Questions",
+  KEY_NOTES: "Key Notes",
+};
+
 interface Resource {
   id: string;
   type: ResourceType;
@@ -44,7 +51,10 @@ export function ResourceCard({ resource, unitId }: { resource: Resource; unitId:
             onClick={() => setExpanded(!expanded)}
             className="flex-1 text-left min-w-0"
           >
-            <h3 className="font-medium text-ink truncate">{resource.title}</h3>
+            <span className="flex items-center gap-2 min-w-0">
+              <h3 className="font-medium text-ink truncate">{resource.title}</h3>
+              <span className="text-xs px-1.5 py-0.5 bg-border text-ink-muted rounded flex-shrink-0">{TYPE_LABELS[resource.type] ?? resource.type}</span>
+            </span>
             {!expanded && resource.body && (
               <p className="text-xs text-ink-muted mt-0.5 line-clamp-1">{resource.body}</p>
             )}
@@ -59,6 +69,7 @@ export function ResourceCard({ resource, unitId }: { resource: Resource; unitId:
           </button>
           <button
             onClick={() => setDeleting(true)}
+            aria-label={`Delete resource "${resource.title}"`}
             className="text-ink-muted hover:text-red-500 transition-colors text-xl leading-none flex-shrink-0"
           >
             ×
@@ -88,7 +99,7 @@ export function ResourceCard({ resource, unitId }: { resource: Resource; unitId:
                 className="inline-flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm text-ink hover:bg-accent-light hover:border-accent transition-colors"
               >
                 <span>📎</span>
-                <span className="truncate max-w-xs">{resource.fileName ?? "Download file"}</span>
+                <span className="truncate max-w-[10rem] sm:max-w-xs">{resource.fileName ?? "Download file"}</span>
               </a>
             )}
 

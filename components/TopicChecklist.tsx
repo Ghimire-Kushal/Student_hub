@@ -26,6 +26,7 @@ export function TopicChecklist({ unitId, topics }: { unitId: string; topics: Top
           <span className={`flex-1 text-sm text-ink ${t.done ? "line-through" : ""}`}>{t.text}</span>
           <button
             onClick={() => startTransition(() => deleteTopic(t.id, unitId))}
+            aria-label={`Delete topic "${t.text}"`}
             className="text-ink-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all text-lg leading-none"
           >
             ×
